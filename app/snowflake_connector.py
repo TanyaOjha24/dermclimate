@@ -59,6 +59,9 @@ def setup_database():
             barrier_risk_score FLOAT
         )
     """)
+    cursor.execute("ALTER TABLE climate_logs ADD COLUMN IF NOT EXISTS session_id VARCHAR")
+    cursor.execute("ALTER TABLE ingredient_scans ADD COLUMN IF NOT EXISTS session_id VARCHAR")
+    cursor.execute("ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS session_id VARCHAR")
     cursor.close()
     conn.close()               
 

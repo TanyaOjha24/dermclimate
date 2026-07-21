@@ -1,16 +1,18 @@
-﻿from app.climate_engine import coordinates, weather_data, calculate_barrier_risk
+﻿from app.climate_engine import coordinates, weather_data
 from app.snowflake_connector import save_climate_log, save_ingredient_scan, save_user_session
+from app.tewl_risk_engine import TEWLRiskEngine
 
 lat, lon = coordinates('Boston')
-temp, humidity, wind_speed, uv = weather_data(lat, lon)
-risk = calculate_barrier_risk(temp, humidity, wind_speed, uv)
-save_climate_log('Boston', temp, humidity, wind_speed, uv, risk)
+weather = weather_data(lat, lon)
+engine = TEWLRiskEngine()
+risk = engine.score(weather)
 
+save_climate_log('Boston', weather["temperature"], weather["humidity"], weather["wind_speed"], weather["uv"], risk)
 
-print(f"Temperature: {temp}°C")
-print(f"Humidity: {humidity}%")
-print(f"Wind Speed: {wind_speed} km/h")
-print(f"UV Index: {uv}")
+print(f"Temperature: {weather['temperature']}°C")
+print(f"Humidity: {weather['humidity']}%")
+print(f"Wind Speed: {weather['wind_speed']} km/h")
+print(f"UV Index: {weather['uv']}")
 print(f"Barrier Risk Score: {risk}/100")
 
 from app.ingredient_engine import get_product_ingredients
