@@ -1,11 +1,14 @@
 ﻿from app.acquisition.climate_fetcher import coordinates, weather_data
 from app.persistence.snowflake_connector import save_climate_log, save_ingredient_scan, save_user_session
 from app.risk.tewl_risk_engine import TEWLRiskEngine
+from app.features.feature_engineer import engineer_features
 
 lat, lon = coordinates('Boston')
 weather = weather_data(lat, lon)
 engine = TEWLRiskEngine()
-risk = engine.score(weather)
+features = engineer_features(weather)
+print(features)
+risk = engine.score(features)
 
 save_climate_log('Boston', weather["temperature"], weather["humidity"], weather["wind_speed"], weather["uv"], risk)
 
