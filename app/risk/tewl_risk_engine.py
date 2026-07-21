@@ -1,4 +1,4 @@
-from app.risk_engine import RiskEngine
+from app.risk.risk_engine import RiskEngine
 
 class TEWLRiskEngine (RiskEngine):
     def score(self, features):
