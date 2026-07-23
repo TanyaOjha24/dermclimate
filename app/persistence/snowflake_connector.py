@@ -1,23 +1,22 @@
 import snowflake.connector
-import os
-from dotenv import load_dotenv
+from app.config import (
+    SNOWFLAKE_USER,
+    SNOWFLAKE_PASSWORD,
+    SNOWFLAKE_ACCOUNT,
+    SNOWFLAKE_DATABASE,
+    SNOWFLAKE_SCHEMA,
+    SNOWFLAKE_WAREHOUSE,
+)
 
 def get_snowflake_connection():
-    load_dotenv()
-    account = os.getenv("SNOWFLAKE_ACCOUNT")
-    user = os.getenv("SNOWFLAKE_USER")
-    password = os.getenv("SNOWFLAKE_PASSWORD")
-    database = os.getenv("SNOWFLAKE_DATABASE")
-    schema = os.getenv("SNOWFLAKE_SCHEMA")
-    warehouse = os.getenv("SNOWFLAKE_WAREHOUSE")
 
     conn = snowflake.connector.connect(
-    account=account,
-    user=user,
-    password = password,
-    database = database,
-    schema = schema,
-    warehouse = warehouse
+    account=SNOWFLAKE_ACCOUNT,
+    user=SNOWFLAKE_USER,
+    password=SNOWFLAKE_PASSWORD,
+    database=SNOWFLAKE_DATABASE,
+    schema=SNOWFLAKE_SCHEMA,
+    warehouse=SNOWFLAKE_WAREHOUSE
     )
     return conn
 
