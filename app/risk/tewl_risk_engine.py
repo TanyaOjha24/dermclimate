@@ -1,12 +1,13 @@
+from app.models.risk_assessment import RiskAssessment
 from app.risk.risk_engine import RiskEngine
 
 class TEWLRiskEngine (RiskEngine):
-    def score(self, features):
+    def score(self, input_weather):
         # Calculate skin barrier risk score (0-100) based on climate variables using TEWL clinical thresholds
-        temp = features["temperature"]
-        humidity = features["humidity"]
-        wind_speed = features["wind_speed"]
-        uv = features["uv"]
+        temp = input_weather.temperature
+        humidity = input_weather.humidity
+        wind_speed = input_weather.wind_speed
+        uv = input_weather.uv
 
         ideal_temp = (18, 22)
         ideal_humidity = (40, 60)
@@ -48,7 +49,10 @@ class TEWLRiskEngine (RiskEngine):
 
         total = (humidity_score * 40) + (uv_score * 40) + (temp_score * 15) + (wind_score * 5)
         total = round(min(total, 100), 1)
-        return total
+        return RiskAssessment(
+            score = total,
+            version= self.version()
+        )
     
     def version(self):
         return 'tewl-v1'

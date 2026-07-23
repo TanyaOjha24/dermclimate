@@ -1,5 +1,6 @@
 #function for importing current weather data for a given location using Open-Meteo API
 import requests
+from app.models.weather import Weather
 
 # Get latitude and longitude for a given city name using Open-Meteo Geocoding API
 def coordinates(city_name):
@@ -23,14 +24,14 @@ def weather_data(lat,lon):
     }   
     response = requests.get('https://api.open-meteo.com/v1/forecast', params = params)
     data = response.json()
-    temp = data['current']['temperature_2m']
+    temperature = data['current']['temperature_2m']
     humidity = data['current']['relative_humidity_2m']
     wind_speed = data['current']['wind_speed_10m']
     uv = data['daily']['uv_index_max'][0]
-    return {
-        "temperature": temp,
-        "humidity": humidity,
-        "wind_speed": wind_speed,
-        "uv": uv
-        }
+    return Weather(
+        temperature = temperature,
+        humidity = humidity,
+        wind_speed = wind_speed,
+        uv = uv
+        )
 
