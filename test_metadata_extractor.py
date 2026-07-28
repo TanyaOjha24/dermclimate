@@ -1,29 +1,24 @@
+from pathlib import Path
+from app.document_loader.pdf_document_loader import PDFDocumentLoader
 from app.metadata.metadata_extractor import MetadataExtractor
 
+project_root = Path(__file__).parent
 
-def test_metadata_extractor():
+paper_path = project_root / "papers" / "484_2026_Article_3145.pdf"
 
-    text = """
-    REVIEW ARTICLE
+loader = PDFDocumentLoader()
+text = loader.load(str(paper_path))
+lines = text.splitlines()
 
-    Barrier Function of Human Skin
+for i, line in enumerate(lines[:100]):
+    if line.strip():
+        print(f"{i}: {line}")
+        
+extractor = MetadataExtractor()
 
-    John Smith
+metadata = extractor.extract(
+    filename=paper_path.name,
+    text=text,
+)
 
-    Journal of Dermatology
-
-    DOI: 10.1111/jdv.1496
-
-    PMCID: PMC1047636
-    """
-
-    extractor = MetadataExtractor()
-
-    metadata = extractor.extract(
-        filename="paper.pdf",
-        text=text,
-    )
-
-    print(metadata)
-
-test_metadata_extractor()
+print(metadata)
