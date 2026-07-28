@@ -1,28 +1,51 @@
 from pathlib import Path
+
 from app.document_loader.pdf_document_loader import PDFDocumentLoader
 
 from app.embedding.sentence_transformer_embedding_model import (
     SentenceTransformerEmbeddingModel,
 )
 
+from app.indexing.faiss_index_builder import FAISSIndexBuilder
 from app.indexing.knowledge_chunk_builder import KnowledgeChunkBuilder
 from app.indexing.recursive_chunker import RecursiveChunker
+
+from app.metadata.crossref_metadata_enricher import CrossrefMetadataEnricher
+from app.metadata.csv_metadata_writer import CSVMetadataWriter
+from app.metadata.metadata_extractor import MetadataExtractor
 
 from app.persistence.snowflake_knowledge_base_storage import (
     SnowflakeKnowledgeBaseStorage,
 )
 
-from app.indexing.faiss_index_builder import FAISSIndexBuilder
 from app.rag.knowledge_base_service import KnowledgeBaseService
 
 
-loader = PDFDocumentLoader()
+# ----------------------------
+# Project paths
+# ----------------------------
 
 project_root = Path(__file__).parent.parent
 
-paper_path = project_root / "papers" / "484_2026_Article_3145.pdf"
+papers_dir = project_root / "papers"
 
-text = loader.load(str(paper_path))
+metadata_dir = project_root / "metadata"
+metadata_dir.mkdir(exist_ok=True)
+
+csv_path = metadata_dir / "paper_metadata.csv"
+
+
+# ----------------------------
+# Services
+# ----------------------------
+
+loader = PDFDocumentLoader()
+
+metadata_extractor = MetadataExtractor()
+
+metadata_enricher = CrossrefMetadataEnricher()
+
+csv_writer = CSVMetadataWriter(str(csv_path))
 
 chunker = RecursiveChunker()
 
@@ -44,10 +67,35 @@ knowledge_base_service = KnowledgeBaseService(
     embedding_model=embedding_model,
 )
 
-knowledge_base_service.ingest_paper(
-    paper_title="YOUR PAPER TITLE",
-    source_url="YOUR PAPER URL",
-    text=text,
-)
 
-print("Paper ingested successfully!")
+# ----------------------------
+# Ingest Papers
+# ----------------------------
+
+for paper_path in papers_dir.glob("*.pdf"):
+
+    print(f"\nIngesting {paper_path.name}...")
+
+    text = loader.load(str(paper_path))
+
+    metadata = metadata_extractor.extract(
+        filename=paper_path.name,
+        text=text,
+    )
+
+    metadata = metadata_enricher.enrich(
+        metadata=metadata,
+        text=text,
+    )
+
+    csv_writer.append(metadata)
+
+    knowledge_base_service.ingest_paper(
+        paper_title=metadata.title,
+        source_url=metadata.source_url,
+        text=text,
+    )
+
+    print(f"Finished ingesting {paper_path.name}")
+
+print("\nAll papers ingested successfully!")

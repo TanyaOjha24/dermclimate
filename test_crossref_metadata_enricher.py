@@ -22,3 +22,20 @@ enriched_metadata = enricher.enrich(
 
 print("\nReturned metadata:")
 print(enriched_metadata)
+
+
+from pathlib import Path
+from app.metadata.csv_metadata_writer import CSVMetadataWriter
+
+project_root = Path(__file__).parent
+
+metadata_dir = project_root / "metadata"
+metadata_dir.mkdir(exist_ok=True)
+
+csv_path = metadata_dir / "paper_metadata.csv"
+
+writer = CSVMetadataWriter(str(csv_path))
+
+writer.append(enriched_metadata)
+
+print("\nMetadata written successfully!")

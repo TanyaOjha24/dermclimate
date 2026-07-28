@@ -15,3 +15,5 @@ class CSVMetadataWriter:
                 if not file_exists:
                     writer.writeheader()
                 writer.writerow(metadata.__dict__)
+
+    
