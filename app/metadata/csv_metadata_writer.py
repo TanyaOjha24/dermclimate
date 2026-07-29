@@ -1,5 +1,6 @@
 import csv
 import os
+import json
 from app.metadata.paper_metadata import PaperMetadata
 from dataclasses import fields
 
@@ -9,11 +10,18 @@ class CSVMetadataWriter:
         self.csv_path = csv_path
 
     def append(self, metadata: PaperMetadata):
-            file_exists = os.path.exists(self.csv_path)
-            with open(self.csv_path, "a", newline="", encoding="utf-8") as f:
-                writer = csv.DictWriter(f, fieldnames = [field.name for field in fields(PaperMetadata)])
-                if not file_exists:
-                    writer.writeheader()
-                writer.writerow(metadata.__dict__)
+        file_exists = os.path.exists(self.csv_path)
+        with open(self.csv_path, "a", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(
+                f,
+                fieldnames=[field.name for field in fields(PaperMetadata)]
+            )
+
+            if not file_exists:
+                writer.writeheader()
+
+            row = metadata.__dict__.copy()
+            row["authors"] = json.dumps(metadata.authors)
+            writer.writerow(row)
 
     
