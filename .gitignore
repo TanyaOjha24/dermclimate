@@ -219,3 +219,5 @@ __marimo__/
 
 # Research papers (copyrighted)
 papers/*.pdf
+
+metadata/paper_metadata.csv
