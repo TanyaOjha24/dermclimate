@@ -26,7 +26,7 @@ knowledge_base_service = KnowledgeBaseService(
 )
 
 
-retriever = knowledge_base_service.load_knowledge_base()
+retriever = knowledge_base_service.create_faiss_retriever()
 
 query = "How does low humidity affect the skin barrier?"
 

@@ -34,7 +34,7 @@ class KnowledgeBaseService:
         self.storage.save(knowledge_chunks)
 
 
-    def load_knowledge_base( self,)-> FAISSKnowledgeRetriever:
+    def create_faiss_retriever( self,)-> FAISSKnowledgeRetriever:
         knowledge_chunks = self.storage.load()
         faiss_index = self.faiss_index_builder.build(knowledge_chunks)
         retriever = FAISSKnowledgeRetriever(
