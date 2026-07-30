@@ -3,6 +3,8 @@ from app.indexing.faiss_index_builder import FAISSIndexBuilder
 from app.indexing.knowledge_chunk_builder import KnowledgeChunkBuilder
 from app.persistence.knowledge_base_storage import KnowledgeBaseStorage
 from app.retrieval.faiss_knowledge_retriever import FAISSKnowledgeRetriever
+from app.indexing.bm25_index_builder import BM25IndexBuilder
+from app.retrieval.bm25_knowledge_retriever import BM25KnowledgeRetriever
 
 
 class KnowledgeBaseService:
@@ -11,11 +13,13 @@ class KnowledgeBaseService:
     knowledge_chunk_builder: KnowledgeChunkBuilder,
     storage: KnowledgeBaseStorage,
     faiss_index_builder: FAISSIndexBuilder,
+    bm25_index_builder: BM25IndexBuilder,
     embedding_model: EmbeddingModel,
     ):
         self.knowledge_chunk_builder = knowledge_chunk_builder
         self.storage = storage
         self.faiss_index_builder = faiss_index_builder
+        self.bm25_index_builder = bm25_index_builder
         self.embedding_model = embedding_model
 
 
@@ -41,6 +45,17 @@ class KnowledgeBaseService:
             embedding_model=self.embedding_model,
             faiss_index=faiss_index,
             knowledge_chunks=knowledge_chunks,
+        )
+
+        return retriever
+
+    def create_bm25_retriever(self) -> BM25KnowledgeRetriever:
+        knowledge_chunks = self.storage.load()
+        bm25_index = self.bm25_index_builder.build(knowledge_chunks)
+        retriever = BM25KnowledgeRetriever(
+            bm25_index=bm25_index,
+            knowledge_chunks=knowledge_chunks,
+            k=3,
         )
 
         return retriever
