@@ -221,3 +221,8 @@ __marimo__/
 papers/*.pdf
 
 metadata/paper_metadata.csv
+
+
+indexes/*.index
+indexes/*.pkl
+!indexes/.gitkeep
