@@ -2,6 +2,7 @@ from app.embedding.sentence_transformer_embedding_model import (
     SentenceTransformerEmbeddingModel,
 )
 
+from app.indexing.bm25_index_builder import BM25IndexBuilder
 from app.indexing.faiss_index_builder import FAISSIndexBuilder
 
 from app.persistence.snowflake_knowledge_base_storage import (
@@ -23,10 +24,11 @@ knowledge_base_service = KnowledgeBaseService(
     storage=storage,
     faiss_index_builder=faiss_index_builder,
     embedding_model=embedding_model,
+    bm25_index_builder=BM25IndexBuilder(),
 )
 
 
-retriever = knowledge_base_service.create_faiss_retriever()
+retriever = knowledge_base_service.create_bm25_retriever()
 
 query = "How does low humidity affect the skin barrier?"
 
