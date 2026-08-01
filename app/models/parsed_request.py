@@ -13,3 +13,4 @@ class ParsedRequest:
     product: str | None = None
     ingredients: list[str] | None = None
     concern: str | None = None
+    city: str | None = None
