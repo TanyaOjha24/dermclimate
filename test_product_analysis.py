@@ -93,6 +93,32 @@ from app.reranking.cross_encoder_reranker import (
     CrossEncoderReranker,
 )
 
+# -------------------------
+# Conversation
+# -------------------------
+
+from app.conversation.conversation_manager import ConversationManager
+from app.conversation.conversation_state import ConversationState
+
+# -------------------------
+# Routing
+# -------------------------
+
+from app.routing.intent_router import IntentRouter
+
+from dermclimate_service import DermClimateService
+
+from app.conversation.conversation_manager import ConversationManager
+from app.conversation.conversation_state import ConversationState
+
+from app.analysis.climate_analysis_service import ClimateAnalysisService
+from app.analysis.ingredient_analysis_service import IngredientAnalysisService
+
+from app.ai.climate_analysis_prompt import ClimateAnalysisPrompt
+from app.ai.ingredient_analysis_prompt import IngredientAnalysisPrompt
+
+
+
 
 def main():
 
@@ -114,6 +140,10 @@ def main():
     intent_prompt = IntentPrompt()
 
     product_analysis_prompt = ProductAnalysisPrompt()
+
+    climate_analysis_prompt = ClimateAnalysisPrompt()
+
+    ingredient_analysis_prompt = IngredientAnalysisPrompt()
 
 # ----------------------------------------
     # Knowledge Base
@@ -201,6 +231,54 @@ def main():
     )
 
 
+    climate_analysis_service = ClimateAnalysisService(
+        climate_fetcher=climate_fetcher,
+        feature_engineer=engineer_features,
+        risk_engine=risk_engine,
+        prompt=climate_analysis_prompt,
+        llm=llm,
+    )
+
+
+    ingredient_analysis_service = IngredientAnalysisService(
+        retriever=retriever,
+        reranker=reranker,
+        prompt=ingredient_analysis_prompt,
+        llm=llm,
+    )
+
+
+    # ----------------------------------------
+    # Routing
+    # ----------------------------------------
+
+    intent_router = IntentRouter(
+        ingredient_service=ingredient_analysis_service,
+        product_service=product_analysis_service,
+        weather_service=climate_analysis_service,
+    )
+
+
+    # ----------------------------------------
+    # Conversation
+    # ----------------------------------------
+
+    conversation_manager = ConversationManager(
+        intent_extractor=intent_extractor,
+        intent_router=intent_router,
+    )
+
+
+
+    # ----------------------------------------
+    # DermClimate
+    # ----------------------------------------
+
+    dermclimate = DermClimateService(
+        conversation_manager=conversation_manager,
+    )
+
+
 
     # ----------------------------------------
     # DermClimate CLI
@@ -218,21 +296,16 @@ def main():
 
         try:
 
-            request = intent_extractor.extract(
-                user_message,
-            )
-
-            # TODO: Remove hardcoded Boston after city extraction is fully integrated
-            if not request.city:
-                request.city = "Boston"
-
-            result = product_analysis_service.analyze(
-                request,
+            result = dermclimate.process_message(
+                user_message=user_message,
             )
 
             print("\nDermClimate:\n")
 
-            print(result.response)
+            if result.response:
+                print(result.response)
+            else:
+                print(result.message)
 
             print()
 

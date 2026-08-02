@@ -9,7 +9,7 @@ from dataclasses import dataclass
 
 @dataclass
 class ParsedRequest:
-    intent: str
+    intent: str | None = None
     product: str | None = None
     ingredients: list[str] | None = None
     concern: str | None = None
