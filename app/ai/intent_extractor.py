@@ -45,12 +45,13 @@ class IntentExtractor:
             user_prompt=user_prompt,
         )
 
-        ##########
-        print("\nLLM RESPONSE:")
-        print(response)
-        print()########
 
-        parsed_response = json.loads(response)
+        try:
+            parsed_response = json.loads(response)
+        except json.JSONDecodeError as e:
+            raise ValueError(
+                f"Intent extractor received invalid JSON:\n\n{response}"
+            ) from e
 
         intent = parsed_response.get("intent")
 

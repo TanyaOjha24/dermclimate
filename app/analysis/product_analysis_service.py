@@ -41,14 +41,19 @@ class ProductAnalysisService:
 
         # Ingredient Pipeline
         ingredients = request.ingredients
+
         if request.product:
             ingredients = self.ingredient_fetcher.get_product_ingredients(
                 request.product,
             )
+            retrieval_query = request.product
+        else:
+            retrieval_query = " ".join(ingredients)
 
         # Retrieval Pipeline
-        retrieval_query = request.product or ingredients
-        retrieved_documents = self.retriever.retrieve(retrieval_query,)
+        retrieved_documents = self.retriever.retrieve(
+            retrieval_query,
+        )
 
         reranked_documents = self.reranker.rerank(
             query=retrieval_query,
