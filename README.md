@@ -62,8 +62,6 @@ flowchart TD
     STORE --> BM25
 ```
 
-You can also explore the generated repository diagram on [GitDiagram](https://gitdiagram.com/tanyaojha24/dermclimate).
-
 ### Request lifecycle
 
 1. A request reaches `POST /chat`.
